@@ -1,0 +1,103 @@
+#include "body.hpp"
+#include <string>
+#include <iostream>
+#include <memory>
+#include <iterator>
+
+int main(int argc,char *argv[]){
+
+  if(argc != 3){
+    cout << "Error! Please restart the program with the correct number of command line arguments" << std::endl;
+    return 1;
+  }
+
+  int uParticles;
+  double uRadius;
+  double dispTime = std::stod(argv[2]);
+  double maxTime = std::stod(argv[1]);
+  
+  sf::Image backgroundimage;
+  backgroundimage.loadFromFile("starfield.jpg");
+
+  // Loads audio file
+  sf::SoundBuffer music;
+  if(!music.loadFromFile("2001.wav"))
+    std::cout << "Error music file not found!" << endl;
+
+  // Loads font used for time counter
+  sf::Font counterFont;
+  if(!counterFont.loadFromFile("arial.ttf"))
+    std::cout << "Error! No font file found!" << endl;
+  
+  sf::Texture background_texture;
+  background_texture.loadFromImage(backgroundimage);
+
+  sf::Sprite background_sprite;
+  background_sprite.setTexture(background_texture);
+
+  // Loads text used for time counter
+  sf::Text counterText;
+  counterText.setFont(counterFont);
+  counterText.setCharacterSize(20);
+
+  sf::RenderWindow window1(sf::VideoMode(500, 500), "Space");
+  window1.setFramerateLimit(40);
+  sf::Vector2u window1size = window1.getSize();
+
+  std::cout << std::scientific;
+
+  // Uses smart pointers for universe
+  std::unique_ptr<universe>u(new universe());
+  cBody* planet;
+  
+  std::cin >> uParticles >> uRadius;
+  cout << "Input: " << uParticles << std::endl << " uRadius: " << uRadius << std::endl;
+
+  // Loads clock used for time
+  sf::Clock timeCounter;
+
+  double ixpos, iypos, ixvel, iyvel, imass;
+  std::string iplanet;
+  for(int i = 0; i < uParticles;i++)
+    {
+      std::cin >> ixpos >> iypos >> ixvel >> iyvel >> imass >> iplanet;
+      planet = new cBody(ixpos, iypos, ixvel, iyvel, imass, iplanet);
+      (*u).pushback(*planet);
+      cout << *planet << std::endl;
+    }
+  //  window1.draw(background_sprite);
+  //  (*u).setPositions(uRadius, window1size);
+  cout << *u << std::endl; 
+  //  (*u).draw(window1);
+
+  
+  while (window1.isOpen())
+    {
+      sf::Event event;
+      while(window1.pollEvent(event)){
+	  if (event.type == sf::Event::Closed)
+	    {
+	      window1.close();
+	    }
+	  else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+	    {
+	      window1.close();
+	    }
+      }
+      window1.draw(background_sprite);      
+      sf::Time counterTime = timeCounter.getElapsedTime();                      // Refreshes time counter                                             
+      float time = counterTime.asSeconds();
+      dispTime += time;
+      if(dispTime < maxTime){
+	(*u).findForces();
+      }
+      (*u).step(dispTime);
+      (*u).setPositions(uRadius, window1size);
+      counterText.setString(std::to_string(time));
+      (*u).draw(window1);
+      window1.draw(counterText);
+      window1.display();
+      window1.clear();
+    }
+  return 0;
+}

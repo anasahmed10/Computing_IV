@@ -1,0 +1,9 @@
+CC = g++
+CFLAGS = -c -g -Og -Wall -Werror -ansi -pedantic -o
+ALLOBJ = fiblsfr.o
+EXE = ps1a
+
+all: $(ALLOBJ)
+	$(CC) -o $( $(ALLOBJ)
+clean:
+	rm $(ALLOBJ) $(EXE)

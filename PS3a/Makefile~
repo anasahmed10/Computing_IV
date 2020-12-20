@@ -1,0 +1,16 @@
+CC = g++
+OBJ = nbody.o cbody.o
+SFML = -lsfml-graphics -lsfml-window -lsfml-system
+EXE = NBody
+
+all:
+	make everything
+
+everything: $(OBJ)
+	$(CC) $(OBJ) -o $(EXE) $(SFML) -std=c++11
+cbody.o: cbody.cpp cbody.hpp
+	$(CC) -c cbody.cpp -o cbody.o $(SFML)
+nbody.o: nbody.cpp cbody.hpp
+	$(CC) -c nbody.cpp -o nbody.o $(SFML)
+clean:
+	\rm $(OBJ) $(EXE) *~ *.o

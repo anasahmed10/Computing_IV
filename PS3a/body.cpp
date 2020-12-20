@@ -1,0 +1,46 @@
+#include "body.hpp"
+
+cBody::cBody(){
+  return;
+}
+
+cBody::cBody(double x_position, double y_position, double x_velocity, double y_velocity, double bmass, std::string planet)
+{
+  sf::Sprite draw_plan;
+  xpos = x_position;
+  ypos = y_position;
+  xvel = x_velocity;
+  yvel = y_velocity;
+  mass = bmass;
+  picture = planet;
+
+
+
+  if(!pImage.loadFromFile(picture)){
+    return;
+  }
+  pTexture.loadFromImage(pImage);
+  pSprite.setTexture(pTexture);
+
+  xpos = ((window.x/radius) * xpos/2) + (window.x / 2);    // Sets position of x and y axis
+  ypos = ((window.y/radius) * ypos/2) + (window.y / 2);
+
+  pSprite.setPosition(sf::Vector2f(xpos,ypos));
+
+  std::cout << xpos << std::endl << ypos << std::endl;
+}
+
+std::ostream& operator <<(std::ostream &output, cBody& c){
+  output << "current x Position: " << c.xpos << std::endl;
+  output << "current y Postion: " << c.ypos << std::endl;
+  output << "current x Velocity: " << c.xvel << std::endl;
+  output << "current y Velocity: " << c.yvel << std::endl;
+  output << "Particle Mass: " << c.mass << std::endl;
+  output << "Particle Name: " << c.picture << std::endl;
+  return output;
+}
+void cBody::draw(sf::RenderTarget& obj, sf::RenderStates status) const
+{
+  obj.draw(pSprite);
+}
+

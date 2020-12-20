@@ -1,0 +1,105 @@
+#ifndef BODY_HPP
+#define BODY_HPP
+#include <iostream>
+#include <math.h>
+#include <cmath>
+#include <stdlib.h>
+#include <string>
+#include <fstream>
+#include <vector>
+#include <memory>
+#include <SFML/System.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+using namespace std;
+
+class cBody: public sf::Drawable
+{
+public:
+  cBody();
+  cBody(double x_position, double y_position, double x_velocity, double y_velocity, double bmass, std::string planet);
+  void setXPos(double newPosition);
+  void setYPos(double newPosition);
+  void setXVel(double newVelocity);
+  void setYVel(double newVelocity);
+  double getXPos();
+  double getYPos();
+  double getXVel();
+  double getYVel();
+  double getMass();
+  void setPositions(double radius, sf::Vector2u windowSize);
+  void findForces(double reg_mass, double xSpot, double ySpot);
+  void step(double seconds);
+  friend ostream& operator <<(std::ostream &output, cBody& c);
+  friend istream& operator >>(std::istream &input, cBody& d)
+  {
+    input >> d.xpos >> d.ypos >> d.xvel >> d.yvel >> d.mass >> d.picture;
+
+    if(!d.pImage.loadFromFile(d.picture)){
+      std::cerr << "Picture did not load";
+    }
+    d.pTexture.loadFromImage(d.pImage);
+    d.pSprite.setTexture(d.pTexture);
+  
+  return input;
+ }
+  void draw(sf::RenderTarget& obj, sf::RenderStates status) const;
+private:
+  double xpos;
+  double ypos;
+  double xvel;
+  double yvel;
+  double mass;
+  std::string picture;
+
+  sf::Image pImage;
+  sf::Sprite pSprite;
+  sf::Texture pTexture;
+  double xforce = 0.0;
+  double yforce = 0.0;
+};
+
+class universe{
+public:
+  void draw(sf::RenderWindow& window1){
+    for(unsigned int i = 0; i < uni.size();i++){
+      window1.draw(uni.at(i));
+    }
+  }
+  void pushback(cBody obj){uni.push_back(obj);}
+  
+  void step(double timePassed){
+    for(unsigned int i = 0; i < uni.size(); i++){
+      uni.at(i).step(timePassed);
+    }
+  }
+
+  void setPositions(double radius, sf::Vector2u windowSize){
+    for(unsigned int i = 0; i < uni.size(); i++){
+      uni.at(i).setPositions(radius, windowSize);
+    }
+  }
+
+  cBody begin(){return uni.at(0);}
+  cBody end(){return uni.at(uni.size() - 1);}
+
+  friend ostream& operator <<(std::ostream &output, universe& c){
+    for(unsigned int i = 0; i < c.uni.size(); i++){
+      output << c.uni.at(i) << endl;
+    }
+    return output;
+  }
+
+  void findForces(){
+    int i;
+    for(i = 0; i < (uni.size() - 1); i++){
+      uni.at(i).findForces(uni.at(i+1).getMass(), uni.at(i+1).getXPos(), uni.at(i+1).getYPos());
+    }
+  }
+  
+private:
+ 	std::vector<cBody> uni;
+};
+
+#endif
